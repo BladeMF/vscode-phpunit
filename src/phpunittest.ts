@@ -232,7 +232,7 @@ export class TestRunner {
       }
 
       case "rerun-last-test": {
-        args = args.concat(this.lastContextArgs.slice());
+        args = this.lastContextArgs.slice();
         break;
       }
     }
@@ -344,8 +344,6 @@ export class TestRunner {
                 this.childProcess.stdout.on('data', (buffer: Buffer) => {
                     this.channel.append(buffer.toString());
                 });*/
-
-        this.channel.show(true);
       }
     } else {
       console.error(`Wasn't able to start phpunit.`);
