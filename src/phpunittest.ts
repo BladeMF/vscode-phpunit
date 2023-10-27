@@ -13,11 +13,14 @@ import parsePhpToObject from "./PhpParser/PhpParser";
 type RunType =
   | "test"
   | "directory"
+  | "directory2"
+  | "directory3"
   | "suite"
   | "rerun-last-test"
   | "nearest-test";
 
-export class TestRunner {
+export class TestRunner
+{
   public lastContextArgs: string[];
   public channel: vscode.OutputChannel;
   public lastCommand: Command;
@@ -32,14 +35,16 @@ export class TestRunner {
   constructor(
     channel: vscode.OutputChannel,
     bootstrapBridge: IExtensionBootstrapBridge
-  ) {
+  )
+  {
     this.channel = channel;
     this.bootstrapBridge = bootstrapBridge;
   }
 
   public getClosestMethodAboveActiveLine(
     editor: vscode.TextEditor
-  ): string | null {
+  ): string | null
+  {
     for (let i = editor.selection.active.line; i > 0; --i) {
       const line = editor.document.lineAt(i);
       let regexResult = this.regex.method.exec(
@@ -66,7 +71,8 @@ export class TestRunner {
     type: RunType,
     configArgs: string[],
     config
-  ): Promise<string[]> {
+  ): Promise<string[]>
+  {
     let args = configArgs.slice();
 
     switch (type) {
@@ -190,8 +196,10 @@ export class TestRunner {
 
         if (selectedSuiteFile) {
           const selectedSuiteFileContent = await new Promise<string>(
-            (resolve, reject) => {
-              fs.readFile(selectedSuiteFile, "utf8", (err, data) => {
+            (resolve, reject) =>
+            {
+              fs.readFile(selectedSuiteFile, "utf8", (err, data) =>
+              {
                 if (err) {
                   reject(err);
                 } else {
@@ -231,6 +239,38 @@ export class TestRunner {
         break;
       }
 
+      case "directory2": {
+        const editor = vscode.window.activeTextEditor;
+        if (editor) {
+          const currentDir = editor.document.uri.fsPath.replace(
+            /(\/|\\)\w*\.php$/i,
+            ""
+          );
+          args.push(`'${currentDir}'/../`);
+        } else {
+          console.error(
+            "Please open a file in the directory you want to test."
+          );
+        }
+        break;
+      }
+
+      case "directory2": {
+        const editor = vscode.window.activeTextEditor;
+        if (editor) {
+          const currentDir = editor.document.uri.fsPath.replace(
+            /(\/|\\)\w*\.php$/i,
+            ""
+          );
+          args.push(`'${currentDir}'/../../`);
+        } else {
+          console.error(
+            "Please open a file in the directory you want to test."
+          );
+        }
+        break;
+      }
+
       case "rerun-last-test": {
         args = this.lastContextArgs.slice();
         break;
@@ -240,7 +280,8 @@ export class TestRunner {
     return args;
   }
 
-  public async getDriver(order?: string[]): Promise<IPhpUnitDriver> {
+  public async getDriver(order?: string[]): Promise<IPhpUnitDriver>
+  {
     const drivers: IPhpUnitDriver[] = [
       new PhpUnitDrivers.Path(),
       new PhpUnitDrivers.Composer(),
@@ -253,7 +294,8 @@ export class TestRunner {
       new PhpUnitDrivers.Legacy()
     ];
 
-    function arrayUnique(array) {
+    function arrayUnique(array)
+    {
       const a = array.concat();
       for (let i = 0; i < a.length; ++i) {
         for (let j = i + 1; j < a.length; ++j) {
@@ -267,7 +309,8 @@ export class TestRunner {
     }
     order = arrayUnique((order || []).concat(drivers.map(d => d.name)));
 
-    const sortedDrivers = drivers.sort((a, b) => {
+    const sortedDrivers = drivers.sort((a, b) =>
+    {
       return order.indexOf(a.name) - order.indexOf(b.name);
     });
 
@@ -280,7 +323,8 @@ export class TestRunner {
     return null;
   }
 
-  public async run(type: RunType) {
+  public async run(type: RunType)
+  {
     const config = vscode.workspace.getConfiguration("phpunit");
     const order = config.get<string[]>("driverPriority");
 
@@ -350,7 +394,8 @@ export class TestRunner {
     }
   }
 
-  public async stop() {
+  public async stop()
+  {
     await vscode.commands.executeCommand(
       "workbench.action.tasks.terminate",
       "phpunit: run"
@@ -368,7 +413,8 @@ export class TestRunner {
     args: string[],
     filePath: string,
     fileContent: string
-  ): Promise<boolean> {
+  ): Promise<boolean>
+  {
     let testSuites = fileContent.match(/<testsuite[^>]+name="[^"]+">/g);
     if (testSuites) {
       testSuites = testSuites.map(v => v.match(/name="([^"]+)"/)[1]);
@@ -385,8 +431,7 @@ export class TestRunner {
 
           if (configArgsIdx !== -1) {
             this.channel.appendLine(
-              `(--configuration|-c) already exists with ${
-                args[configArgsIdx + 1]
+              `(--configuration|-c) already exists with ${args[configArgsIdx + 1]
               }, replacing with ${filePath}`
             );
             args[configArgsIdx + 1] = filePath;
@@ -409,8 +454,7 @@ export class TestRunner {
 
         if (configArgsIdx !== -1) {
           this.channel.appendLine(
-            `(--configuration|-c) already exists with ${
-              args[configArgsIdx + 1]
+            `(--configuration|-c) already exists with ${args[configArgsIdx + 1]
             }, replacing with ${filePath}`
           );
           args[configArgsIdx + 1] = filePath;

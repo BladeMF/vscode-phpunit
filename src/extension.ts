@@ -3,56 +3,79 @@
 import * as vscode from "vscode";
 import { TestRunner } from "./phpunittest";
 
-export function activate(context: vscode.ExtensionContext) {
+export function activate(context: vscode.ExtensionContext)
+{
   let taskCommand: string = null;
   let problemMatcher: string = null;
   const outputChannel = vscode.window.createOutputChannel("phpunit");
   const PHPUnitTestRunner: TestRunner = new TestRunner(outputChannel, {
-    setTaskCommand: (command: string, matcher?: string) => {
+    setTaskCommand: (command: string, matcher?: string) =>
+    {
       taskCommand = command;
       problemMatcher = matcher;
     }
   });
 
   context.subscriptions.push(
-    vscode.commands.registerCommand("phpunit.Test", () => {
+    vscode.commands.registerCommand("phpunit.Test", () =>
+    {
       PHPUnitTestRunner.run("test");
     })
   );
 
   context.subscriptions.push(
-    vscode.commands.registerCommand("phpunit.TestNearest", () => {
+    vscode.commands.registerCommand("phpunit.TestNearest", () =>
+    {
       PHPUnitTestRunner.run("nearest-test");
     })
   );
 
   context.subscriptions.push(
-    vscode.commands.registerCommand("phpunit.TestSuite", () => {
+    vscode.commands.registerCommand("phpunit.TestSuite", () =>
+    {
       PHPUnitTestRunner.run("suite");
     })
   );
 
   context.subscriptions.push(
-    vscode.commands.registerCommand("phpunit.TestDirectory", () => {
+    vscode.commands.registerCommand("phpunit.TestDirectory", () =>
+    {
       PHPUnitTestRunner.run("directory");
     })
   );
 
   context.subscriptions.push(
-    vscode.commands.registerCommand("phpunit.RerunLastTest", () => {
+    vscode.commands.registerCommand("phpunit.TestDirectory2", () =>
+    {
+      PHPUnitTestRunner.run("directory2");
+    })
+  );
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand("phpunit.TestDirectory3", () =>
+    {
+      PHPUnitTestRunner.run("directory3");
+    })
+  );
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand("phpunit.RerunLastTest", () =>
+    {
       PHPUnitTestRunner.run("rerun-last-test");
     })
   );
 
   context.subscriptions.push(
-    vscode.commands.registerCommand("phpunit.TestingStop", () => {
+    vscode.commands.registerCommand("phpunit.TestingStop", () =>
+    {
       PHPUnitTestRunner.stop();
     })
   );
 
   context.subscriptions.push(
     vscode.tasks.registerTaskProvider("phpunit", {
-      provideTasks: () => {
+      provideTasks: () =>
+      {
         return [
           new vscode.Task(
             { type: "phpunit", task: "run" },
@@ -75,4 +98,4 @@ export function activate(context: vscode.ExtensionContext) {
 }
 
 // this method is called when your extension is deactivated
-export function deactivate() {}
+export function deactivate() { }
